@@ -1,0 +1,1 @@
+package azure.tagging.require_tags\n\n# tests\n
