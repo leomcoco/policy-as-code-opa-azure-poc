@@ -1,1 +1,30 @@
-name: Release Bundle\n\non:\n  push:\n    tags:\n      - "v*.*.*"\n\njobs:\n  bundle:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Install OPA\n        run: |\n          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64_static\n          chmod +x opa\n          sudo mv opa /usr/local/bin/opa\n      - name: Build bundle\n        run: |\n          mkdir -p dist\n          opa build -b ./policies -o dist/policies-bundle.tar.gz\n
+name: Release Bundle
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64_static
+          chmod +x opa
+          sudo mv opa /usr/local/bin/opa
+
+      - name: Build bundle
+        run: |
+          mkdir -p dist
+          opa build -b ./policies -o dist/policies-bundle.tar.gz
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: policies-bundle
+          path: dist/policies-bundle.tar.gz
