@@ -2,7 +2,6 @@ package azure.tagging.require_tags
 
 import rego.v1
 
-# ajuste para os tags que você quer exigir
 required_tags := {"ambiente", "empresa", "centro_de_custo"}
 
 deny contains msg if {
