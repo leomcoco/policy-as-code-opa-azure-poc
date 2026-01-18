@@ -1,10 +1,15 @@
 package azure.tagging.require_tags
 
-required_tags := {"ambiente", "centro_de_custo"}
+import rego.v1
 
-deny[msg] {
+# ajuste para os tags que você quer exigir
+required_tags := {"ambiente", "empresa", "centro_de_custo"}
+
+deny contains msg if {
   tags := object.get(input.resource, "tags", {})
-  t := required_tags[_]
-  not tags[t]
-  msg := sprintf("Missing required tag: %s", [t])
+
+  some tag in required_tags
+  not tags[tag]
+
+  msg := sprintf("Missing required tag: %s", [tag])
 }

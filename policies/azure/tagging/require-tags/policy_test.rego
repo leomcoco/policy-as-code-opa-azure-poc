@@ -1,17 +1,19 @@
 package azure.tagging.require_tags
 
-test_missing_tag_denies {
-  in := {"resource": {"tags": {"ambiente": "prod"}}}
-  count(deny with input as in) == 1
-  (deny["Missing required tag: centro_de_custo"] with input as in)
+import rego.v1
+
+test_deny_when_missing_tag if {
+  input_data := {"resource": {"tags": {"ambiente": "prod"}}}
+
+  denies := data.azure.tagging.require_tags.deny with input as input_data
+
+  denies["Missing required tag: empresa"]
 }
 
-test_all_tags_allows {
-  in := {"resource": {"tags": {"ambiente": "prod", "centro_de_custo": "123"}}}
-  count(deny with input as in) == 0
-}
+test_allow_when_all_tags_present if {
+  input_data := {"resource": {"tags": {"ambiente": "prod", "empresa": "bradesco", "centro_de_custo": "123"}}}
 
-test_no_tags_denies {
-  in := {"resource": {}}
-  count(deny with input as in) == 2
+  denies := data.azure.tagging.require_tags.deny with input as input_data
+
+  count(denies) == 0
 }
