@@ -1,1 +1,27 @@
-# Ex.: * @seu-time\n
+# .github/CODEOWNERS
+#
+# PoC baseline: owner único (repo pessoal).
+# Quando evoluir para organização, substitua @leomcoco por @org/time.
+
+# Dono padrão (fallback)
+*                           @leomcoco
+
+# Políticas (OPA/Rego), bundles e dados de teste
+policies/                    @leomcoco
+opa/                         @leomcoco
+bundles/                     @leomcoco
+data/                        @leomcoco
+tests/                       @leomcoco
+
+# CI/CD e automações
+.github/workflows/           @leomcoco
+.github/actions/             @leomcoco
+
+# Documentação
+docs/                        @leomcoco
+
+# Arquivos sensíveis de governança do repositório
+CODEOWNERS                   @leomcoco
+.github/CODEOWNERS           @leomcoco
+CONTRIBUTING.md              @leomcoco
+.github/pull_request_template.md @leomcoco
