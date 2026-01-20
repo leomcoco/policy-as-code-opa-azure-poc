@@ -79,7 +79,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       # “cinto e suspensório” para evitar tentativa de register RP
-      ARM_SKIP_PROVIDER_REGISTRATION: "true"
+      
 
     steps:
       - uses: actions/checkout@v4
