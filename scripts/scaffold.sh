@@ -41,9 +41,10 @@ write_if_empty () {
   local file="$1"
   local content="$2"
   if [ ! -s "$file" ]; then
-    printf "%s" "$content" > "$file"
+    printf "%b" "$content" > "$file"
   fi
 }
+
 
 write_if_empty README.md "# policy-as-code-opa-azure-poc\n\nPoC de Policy as Code com OPA/Rego para Azure (sanitized).\n"
 write_if_empty CHANGELOG.md "# Changelog\n"

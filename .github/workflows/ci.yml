@@ -7,12 +7,19 @@ on:
     branches: ["main"]
 
 env:
-  OPA_VERSION: "v0.64.1" # fixe a versão para evitar quebra por "latest"
+  OPA_VERSION: "v0.64.1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   policy-tests:
+    name: policy-tests
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -45,4 +52,70 @@ jobs:
         with:
           name: policies-bundle
           path: dist/policies-bundle.tar.gz
+          if-no-files-found: error
+
+  terraform-plan:
+    name: terraform-plan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    # evita falha em PRs vindos de fork (vars não são expostas para forks)
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+
+    defaults:
+      run:
+        working-directory: examples/terraform
+
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # “cinto e suspensório” para evitar tentativa de register RP
+      
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.6"
+
+      - name: Terraform fmt (check)
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan (binary)
+        run: |
+          mkdir -p dist
+          terraform plan -input=false -refresh=false -out=dist/tfplan.binary
+
+      - name: Convert plan to JSON
+        run: terraform show -json dist/tfplan.binary > dist/tfplan.json
+
+      - name: Upload plan JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-json
+          path: examples/terraform/dist/tfplan.json
           if-no-files-found: error
