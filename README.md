@@ -1,47 +1,30 @@
-# Policy as Code PoC (OPA) — Azure + Terraform (Sandbox)
+# policy-as-code-opa-azure-poc
 
-Este repositório implementa uma Prova de Conceito (PoC) de **Policy as Code** usando **Open Policy Agent (OPA)** para validar regras de governança **antes do deploy** (shift-left), com foco em **Azure** e **Terraform Plan JSON**.
+Proof-of-Concept (PoC) for **Policy as Code** using **Open Policy Agent (OPA)** and **Rego**, with an Azure-oriented repository layout.
+This repo is designed to be simple, reproducible, and CI-driven.
 
-O objetivo é demonstrar um modelo “pronto para escalar”: regras versionadas, revisadas via Pull Request, testadas em CI, documentadas e com rollback simples.
+## Goals
+- Validate Rego policies with `opa fmt` and `opa test` on every Pull Request
+- Package policies as an OPA bundle
+- Generate a **Terraform plan in JSON** during CI (shift-left) to enable policy checks against IaC changes
 
----
+## Repository Structure
+- `policies/`  
+  Rego policies and tests (unit tests).
+- `examples/terraform/`  
+  Simple Terraform stack used **only** to generate a `terraform plan` and export it as JSON.
+- `.github/workflows/`  
+  CI workflows (OPA tests, Terraform plan artifact, release bundle).
+- `docs/`  
+  Architecture and governance documents.
 
-## Por que esta PoC existe
+## Prerequisites (local)
+- OPA installed (optional for local dev)
+- Terraform 1.6+ (for the example stack)
 
-Em ambientes cloud com múltiplas squads e alta cadência de mudanças, governança manual não escala. Policy as Code transforma regras em capacidade de plataforma:
+## Local - OPA
+Run formatting check and tests:
 
-- **Padronização**: mesmas regras para todos os times/pipelines.
-- **Rastreabilidade**: PR → review → CI → merge (auditoria nativa no Git).
-- **Qualidade**: testes automatizados e gates antes do merge.
-- **Segurança operacional**: rollback rápido via revert.
-- **Evolução contínua**: melhorias iterativas com histórico e métricas.
-
----
-
-## Escopo
-
-### Inclui
-- Policies em **Rego** (OPA) para governança.
-- Testes automatizados (OPA unit tests).
-- Avaliação de políticas contra **Terraform plan JSON**.
-- Documentação por policy (objetivo, inputs, allow/deny, decisão, testes, rollback).
-- Governança do repositório (CODEOWNERS, PR template, regras de merge).
-
-### Não inclui (nesta fase)
-- Deploy/enforcement nativo no Azure (isso é papel de **Azure Policy**).
-- Enforcement em runtime (ex.: Kubernetes admission controller).
-- Integração com todos os toolchains corporativos (é PoC em sandbox).
-
----
-
-## Como usar (Quickstart)
-
-### 1) Pré-requisitos (local)
-- **OPA** (binário `opa`) no PATH
-- **Terraform**
-- (Opcional) `jq` para inspecionar JSON
-
-Verifique:
 ```bash
-opa version
-terraform version
+opa fmt -w ./policies
+opa test -v ./policies

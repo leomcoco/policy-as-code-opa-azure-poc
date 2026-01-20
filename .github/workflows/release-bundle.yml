@@ -6,25 +6,43 @@ on:
     tags:
       - "v*.*.*"
 
+env:
+  OPA_VERSION: "v0.64.1"
+
+permissions:
+  contents: write
+
 jobs:
   bundle:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install OPA
+      - name: Install OPA (pinned)
         run: |
-          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64_static
+          curl -L -o opa https://openpolicyagent.org/downloads/${OPA_VERSION}/opa_linux_amd64_static
           chmod +x opa
           sudo mv opa /usr/local/bin/opa
+          opa version
 
       - name: Build bundle
         run: |
           mkdir -p dist
           opa build -b ./policies -o dist/policies-bundle.tar.gz
+          sha256sum dist/policies-bundle.tar.gz | tee dist/policies-bundle.tar.gz.sha256
+          ls -lah dist
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
         with:
           name: policies-bundle
-          path: dist/policies-bundle.tar.gz
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Publish bundle in GitHub Release (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/policies-bundle.tar.gz
+            dist/policies-bundle.tar.gz.sha256
