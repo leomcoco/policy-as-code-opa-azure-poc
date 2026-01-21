@@ -7,22 +7,9 @@ cfg := data.azure.tagging.require_tags
 deny contains msg if {
 	rc := input.resource_changes[_]
 	is_relevant_change(rc)
-
-	# Para evitar falso positivo: só aplica se o recurso expõe tags no plan
-	cfg.enforce_only_when_tags_exist
-	not has_tags_field(rc)
-
-	# Se não tem campo tags/tags_all no plan, não bloqueia (ex.: subnet)
-	false
-}
-
-deny contains msg if {
-	rc := input.resource_changes[_]
-	is_relevant_change(rc)
 	has_tags_field(rc)
 
 	tags := get_tags(rc)
-
 	missing := missing_required(tags)
 	count(missing) > 0
 
@@ -39,7 +26,6 @@ deny contains msg if {
 
 	tags := get_tags(rc)
 	has_nonempty(tags, "owner")
-
 	not regex.match(cfg.patterns.owner, tags.owner)
 
 	msg := sprintf(
@@ -55,7 +41,6 @@ deny contains msg if {
 
 	tags := get_tags(rc)
 	has_nonempty(tags, "cost_center")
-
 	not regex.match(cfg.patterns.cost_center, tags.cost_center)
 
 	msg := sprintf(
