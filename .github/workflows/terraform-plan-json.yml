@@ -58,12 +58,14 @@ jobs:
       - name: Converter plano para JSON (plan.json)
         run: terraform show -json dist/tfplan > dist/plan.json
 
-      - name: Publicar plan.json como Artifact
+      - name: Publicar plan.json como Artifact (sempre)
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: terraform-plan-json
-          path: examples/terraform/dist/plan.json
+          path: dist/plan.json
           retention-days: 7
+
 
 
           #adicionado para gerar evidência de conformidade via OPA
