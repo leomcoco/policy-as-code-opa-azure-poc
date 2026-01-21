@@ -1,17 +1,19 @@
 {
-  "azure": {
-    "tagging": {
-      "require_tags": {
-        "required": ["owner", "cost_center", "ambiente", "squad"],
-        "allowed": {
-          "ambiente": ["sandbox", "dev", "hom", "prod"],
-          "squad": ["squad-a", "squad-b"]
-        },
-        "patterns": {
-          "owner": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
-          "cost_center": "^[0-9]{4,10}$"
-        },
-        "enforce_only_when_tags_exist": true
+  "config": {
+    "azure": {
+      "tagging": {
+        "require_tags": {
+          "required": ["owner", "cost_center", "ambiente", "squad"],
+          "allowed": {
+            "ambiente": ["sandbox", "dev", "hom", "prod"],
+            "squad": ["squad-a", "squad-b"]
+          },
+          "patterns": {
+            "owner": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "cost_center": "^[0-9]{4,10}$"
+          },
+          "enforce_only_when_tags_exist": true
+        }
       }
     }
   }

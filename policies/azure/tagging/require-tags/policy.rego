@@ -2,7 +2,7 @@ package azure.tagging.require_tags
 
 import rego.v1
 
-cfg := data.azure.tagging.require_tags
+cfg := data.config.azure.tagging.require_tags
 
 deny contains msg if {
 	rc := input.resource_changes[_]

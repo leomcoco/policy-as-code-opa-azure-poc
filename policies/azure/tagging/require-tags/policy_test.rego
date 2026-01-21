@@ -20,8 +20,8 @@ test_fail_missing_required_tags if {
 		},
 	}]}
 
-	denies := data.azure.tagging.require_tags.deny with input as input_fail
-		with data as data_for_tests
+	denies := deny with input as input_fail
+		with data.config.azure.tagging.require_tags as cfg_for_tests
 
 	count(denies) >= 1
 }
@@ -46,8 +46,8 @@ test_success_all_tags_valid if {
 		},
 	}]}
 
-	denies := data.azure.tagging.require_tags.deny with input as input_ok
-		with data as data_for_tests
+	denies := deny with input as input_ok
+		with data.config.azure.tagging.require_tags as cfg_for_tests
 
 	count(denies) == 0
 }
@@ -63,13 +63,13 @@ test_ignore_resource_without_tags_field if {
 		},
 	}]}
 
-	denies := data.azure.tagging.require_tags.deny with input as input_ignore
-		with data as data_for_tests
+	denies := deny with input as input_ignore
+		with data.config.azure.tagging.require_tags as cfg_for_tests
 
 	count(denies) == 0
 }
 
-data_for_tests := {"azure": {"tagging": {"require_tags": {
+cfg_for_tests := {
 	"required": ["owner", "cost_center", "ambiente", "squad"],
 	"allowed": {
 		"ambiente": ["sandbox", "dev", "hom", "prod"],
@@ -80,4 +80,4 @@ data_for_tests := {"azure": {"tagging": {"require_tags": {
 		"cost_center": "^[0-9]{4,10}$",
 	},
 	"enforce_only_when_tags_exist": true,
-}}}}
+}
