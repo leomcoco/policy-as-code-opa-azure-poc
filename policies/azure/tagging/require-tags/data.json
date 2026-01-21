@@ -3,14 +3,23 @@
     "azure": {
       "tagging": {
         "require_tags": {
-          "required": ["owner", "cost_center", "ambiente", "squad"],
+          "required": [
+            "centro_de_custo",
+            "app",
+            "gerenciamento",
+            "empresa",
+            "ambiente",
+            "projeto"
+          ],
           "allowed": {
             "ambiente": ["sandbox", "dev", "hom", "prod"],
-            "squad": ["squad-a", "squad-b"]
+            "gerenciamento": ["ti", "negocio", "terceiros"]
           },
           "patterns": {
-            "owner": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
-            "cost_center": "^[0-9]{4,10}$"
+            "centro_de_custo": "^[0-9]{4,10}$",
+            "empresa": "^[a-z0-9][a-z0-9_-]{1,62}[a-z0-9]$",
+            "app": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$",
+            "projeto": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$"
           },
           "enforce_only_when_tags_exist": true
         }

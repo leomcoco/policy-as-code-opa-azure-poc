@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # necessário para OIDC no Azure/login
+  id-token: write
 
 jobs:
   plan:
@@ -58,38 +58,20 @@ jobs:
       - name: Converter plano para JSON (plan.json)
         run: terraform show -json dist/tfplan > dist/plan.json
 
-      - name: Publicar plan.json como Artifact (sempre)
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: terraform-plan-json
-          path: dist/plan.json
-          retention-days: 7
-
-
-
-          #adicionado para gerar evidência de conformidade via OPA
       - name: Instalar OPA
         uses: open-policy-agent/setup-opa@v2
         with:
           version: 1.7.1
 
       - name: Enforce OPA policy no plan.json (falha se houver deny)
-        shell: bash
         run: |
           set -euo pipefail
+          deny_count=$(opa eval -i dist/plan.json -d ../../policies -f raw 'count(data.azure.tagging.require_tags.deny)')
+          echo "deny_count=${deny_count}"
 
-          test -f dist/plan.json
-
-          DENY_COUNT=$(opa eval -i dist/plan.json -d ../../policies -f raw \
-            'count(data.azure.tagging.require_tags.deny)')
-
-          echo "deny_count=$DENY_COUNT"
-
-          if [ "$DENY_COUNT" -gt 0 ]; then
+          if [ "${deny_count}" -gt 0 ]; then
             echo "Policy violations:"
-            opa eval -i dist/plan.json -d ../../policies -f pretty \
-              'data.azure.tagging.require_tags.deny'
+            opa eval -i dist/plan.json -d ../../policies -f pretty 'data.azure.tagging.require_tags.deny'
             exit 1
           fi
 
@@ -100,6 +82,3 @@ jobs:
           name: terraform-plan-json
           path: examples/terraform/dist/plan.json
           retention-days: 7
-          if-no-files-found: warn
-
-
