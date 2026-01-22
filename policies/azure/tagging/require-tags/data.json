@@ -12,8 +12,7 @@
             "projeto"
           ],
           "allowed": {
-            "ambiente": ["sandbox", "dev", "hom", "prod"],
-            "gerenciamento": ["ti", "negocio", "terceiros"]
+            "ambiente": ["sandbox", "dev", "hom", "prod"]
           },
           "patterns": {
             "centro_de_custo": "^[0-9]{4,10}$",
