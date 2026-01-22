@@ -2,8 +2,7 @@ package azure.tagging.require_tags
 
 import rego.v1
 
-# Importante: "data" é o documento vindo do arquivo data.json nesta pasta
-cfg := data.azure.tagging.require_tags.data.config.azure.tagging.require_tags
+cfg := data.config.azure.tagging.require_tags
 
 deny contains msg if {
 	rc := input.resource_changes[_]
@@ -23,7 +22,6 @@ deny contains msg if {
 	has_tags_field(rc)
 
 	tags := get_tags(rc)
-
 	has_nonempty(tags, "centro_de_custo")
 	not regex.match(cfg.patterns.centro_de_custo, tags.centro_de_custo)
 
@@ -36,34 +34,6 @@ deny contains msg if {
 	has_tags_field(rc)
 
 	tags := get_tags(rc)
-
-	has_nonempty(tags, "ambiente")
-	env := lower(tags.ambiente)
-	not allowed(cfg.allowed.ambiente, env)
-
-	msg := sprintf("%s (%s): tag ambiente inválida: %q (permitidos: %v)", [rc.address, rc.type, tags.ambiente, cfg.allowed.ambiente])
-}
-
-deny contains msg if {
-	rc := input.resource_changes[_]
-	is_relevant_change(rc)
-	has_tags_field(rc)
-
-	tags := get_tags(rc)
-
-	has_nonempty(tags, "empresa")
-	not regex.match(cfg.patterns.empresa, tags.empresa)
-
-	msg := sprintf("%s (%s): tag empresa inválida: %q", [rc.address, rc.type, tags.empresa])
-}
-
-deny contains msg if {
-	rc := input.resource_changes[_]
-	is_relevant_change(rc)
-	has_tags_field(rc)
-
-	tags := get_tags(rc)
-
 	has_nonempty(tags, "app")
 	not regex.match(cfg.patterns.app, tags.app)
 
@@ -76,11 +46,48 @@ deny contains msg if {
 	has_tags_field(rc)
 
 	tags := get_tags(rc)
+	has_nonempty(tags, "gerenciamento")
+	not regex.match(cfg.patterns.gerenciamento, tags.gerenciamento)
 
+	msg := sprintf("%s (%s): tag gerenciamento inválida: %q", [rc.address, rc.type, tags.gerenciamento])
+}
+
+deny contains msg if {
+	rc := input.resource_changes[_]
+	is_relevant_change(rc)
+	has_tags_field(rc)
+
+	tags := get_tags(rc)
+	has_nonempty(tags, "empresa")
+	not regex.match(cfg.patterns.empresa, tags.empresa)
+
+	msg := sprintf("%s (%s): tag empresa inválida: %q", [rc.address, rc.type, tags.empresa])
+}
+
+deny contains msg if {
+	rc := input.resource_changes[_]
+	is_relevant_change(rc)
+	has_tags_field(rc)
+
+	tags := get_tags(rc)
 	has_nonempty(tags, "projeto")
 	not regex.match(cfg.patterns.projeto, tags.projeto)
 
 	msg := sprintf("%s (%s): tag projeto inválida: %q", [rc.address, rc.type, tags.projeto])
+}
+
+deny contains msg if {
+	rc := input.resource_changes[_]
+	is_relevant_change(rc)
+	has_tags_field(rc)
+
+	tags := get_tags(rc)
+	has_nonempty(tags, "ambiente")
+
+	env := lower(tags.ambiente)
+	not allowed(cfg.allowed.ambiente, env)
+
+	msg := sprintf("%s (%s): tag ambiente inválida: %q (permitidos: %v)", [rc.address, rc.type, tags.ambiente, cfg.allowed.ambiente])
 }
 
 #################
@@ -111,10 +118,8 @@ get_tags(rc) := tags if {
 }
 
 missing_required(tags) := missing if {
-	missing := [t |
-		t := cfg.required[_]
-		not has_nonempty(tags, t)
-	]
+	required := cfg.required
+	missing := [t | t := required[_]; not has_nonempty(tags, t)]
 }
 
 has_nonempty(tags, k) if {
