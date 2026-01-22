@@ -1,0 +1,29 @@
+{
+  "config": {
+    "azure": {
+      "tagging": {
+        "require_tags": {
+          "required": [
+            "centro_de_custo",
+            "app",
+            "gerenciamento",
+            "empresa",
+            "ambiente",
+            "projeto"
+          ],
+          "allowed": {
+            "ambiente": ["sandbox", "dev", "hom", "prod"]
+          },
+          "patterns": {
+            "centro_de_custo": "^[0-9]{4,10}$",
+            "app": "^[a-zA-Z0-9][a-zA-Z0-9._-]{1,62}$",
+            "gerenciamento": "^[a-zA-Z0-9][a-zA-Z0-9._-]{1,62}$",
+            "empresa": "^[a-zA-Z0-9][a-zA-Z0-9._-]{1,62}$",
+            "projeto": "^[a-zA-Z0-9][a-zA-Z0-9._-]{1,62}$"
+          },
+          "enforce_only_when_tags_exist": true
+        }
+      }
+    }
+  }
+}
